@@ -1,7 +1,6 @@
-:root{
+:root {
   --bg: #0f172a;
   --panel: #111827;
-  --panel-2: #0b1220;
   --text: #e5e7eb;
   --muted: #9ca3af;
   --primary: #22c55e;
@@ -13,161 +12,340 @@
   --ring: #2563eb55;
   --border: #1f2937;
   --radius: 12px;
-  --shadow: 0 10px 30px rgba(2,6,23,0.5), 0 2px 8px rgba(2,6,23,0.35);
+  --shadow: 0 10px 30px rgba(2, 6, 23, 0.5), 0 2px 8px rgba(2, 6, 23, 0.35);
 }
 
-*{
+/* light theme */
+[data-theme="light"] {
+  --bg: #f9fafb;
+  --panel: #ffffff;
+  --text: #111827;
+  --muted: #6b7280;
+  --primary: #22c55e;
+  --primary-600: #16a34a;
+  --danger: #ef4444;
+  --danger-600: #dc2626;
+  --info: #3b82f6;
+  --info-600: #2563eb;
+  --ring: #2563eb55;
+  --border: #d1d5db;
+  --radius: 12px;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --list-bg: #ffffff; /* light mode task bg */
+  --list-text: #111827;
+}
+
+/* dark theme */
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --panel: #111827;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --primary: #22c55e;
+  --primary-600: #16a34a;
+  --danger: #ef4444;
+  --danger-600: #dc2626;
+  --info: #60a5fa;
+  --info-600: #3b82f6;
+  --ring: #2563eb55;
+  --border: #1f2937;
+  --radius: 12px;
+  --shadow: 0 10px 30px rgba(2, 6, 23, 0.5), 0 2px 8px rgba(2, 6, 23, 0.35);
+  --list-bg: rgba(31, 41, 55, 0.8); /* dark mode task bg */
+  --list-text: #f3f4f6;
+}
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Confirm butonu */
+.confirm-btn {
+  background: #2ecc71; /* yeşil */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.confirm-btn:hover {
+  background: #27ae60;
+}
+
+/* Cancel butonu */
+.cancel-btn {
+  background: #e74c3c; /* kırmızı */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background: #c0392b;
+}
+
+/* Modal box */
+.modal {
+  background: var(--panel);
+  padding: 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  max-width: 400px;
+  text-align: center;
+}
+
+.modal-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* Undo toast */
+.undo-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideUp 0.3s ease;
+}
+
+.undo-toast button {
+  background: none;
+  border: none;
+  color: var(--info-600);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Toast animation */
+@keyframes slideUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.theme-toggle {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+body {
+  margin: 0;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial;
+  color: var(--text);
+  background-color: var(--bg);
+  transition:
+    background 0.3s ease,
+    color 0.3s ease;
+}
+
+/* Ensure layout never overflows horizontally */
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-html, body, #root{
-  height: 100%;
-}
-
-body{
-  margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  color: var(--text);
-  background: radial-gradient(1200px 700px at 20% -10%, #1f2937, transparent 60%), radial-gradient(900px 600px at 100% 0%, #111827, transparent 50%), var(--bg);
-  line-height: 1.5;
-}
-
-.to-do-list{
+.to-do-list {
   max-width: 720px;
   margin: 48px auto;
   padding: 32px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)) , rgba(17,24,39,0.65);
+  background: var(--panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  backdrop-filter: blur(8px);
-  text-align: left;
+  transition: background 0.3s ease;
 }
 
-h1{
-  margin: 0 0 20px 0;
-  font-size: 2.25rem;
-  letter-spacing: -0.02em;
+h1 {
+  margin-bottom: 20px;
+  font-size: 2rem;
+  color: var(--text);
 }
 
-/* Controls row */
-.to-do-list > div{
+/* Input + button row */
+.to-do-list > form {
   display: flex;
   gap: 12px;
-  align-items: center;
   margin-bottom: 20px;
 }
 
-input[type="text"]{
+input[type="text"] {
   flex: 1;
-  font-size: 1rem;
-  padding: 12px 14px;
+  padding: 12px;
   background: var(--panel);
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 10px;
-  outline: none;
-  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
 }
 
-input[type="text"]::placeholder{
-  color: var(--muted);
-}
-
-input[type="text"]:focus{
+input[type="text"]:focus {
   border-color: var(--info-600);
   box-shadow: 0 0 0 4px var(--ring);
 }
 
-button{
+/* Shared button styles */
+.task-button {
+  padding: 10px 16px;
   font-size: 0.95rem;
   font-weight: 600;
-  padding: 10px 16px;
-  color: white;
+  color: hsl(0, 0%, 100%);
   border: 1px solid transparent;
   border-radius: 10px;
   cursor: pointer;
-  transition: transform .06s ease, background-color .2s ease, box-shadow .2s ease, border-color .2s ease;
-  background: var(--panel);
+  transition: 0.2s;
 }
 
-button:active{
-  transform: translateY(1px);
-}
-
-.add-button{
+/* Add button */
+.task-button[data-type="add"] {
   background: linear-gradient(180deg, var(--primary), var(--primary-600));
   border-color: #14532d;
-  box-shadow: 0 6px 18px rgba(34,197,94,0.35);
 }
-
-.add-button:hover{
+.task-button[data-type="add"]:hover {
   background: linear-gradient(180deg, #26cf64, var(--primary-600));
 }
 
-.delete-button{
+/* Delete button */
+.task-button[data-type="delete"] {
   background: linear-gradient(180deg, var(--danger), var(--danger-600));
   border-color: #7f1d1d;
-  box-shadow: 0 6px 18px rgba(239,68,68,0.35);
 }
-
-.delete-button:hover{
+.task-button[data-type="delete"]:hover {
   background: linear-gradient(180deg, #f05454, var(--danger-600));
 }
 
-.move-button{
+/* Move button */
+.task-button[data-type="move"] {
   background: linear-gradient(180deg, var(--info), var(--info-600));
   border-color: #1e3a8a;
-  box-shadow: 0 6px 18px rgba(96,165,250,0.35);
 }
-
-.move-button:hover{
+.task-button[data-type="move"]:hover {
   background: linear-gradient(180deg, #6aa9ff, var(--info-600));
 }
 
-ol{
+ol {
   padding: 0;
-  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-li{
+li {
   list-style: none;
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 14px;
-  background: linear-gradient(180deg, rgba(31,41,55,0.8), rgba(17,24,39,0.8));
+  background: var(--list-bg);
+  color: var(--list-text);
   border: 1px solid var(--border);
   border-radius: 12px;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease;
 }
 
-.text{
+.text {
   flex: 1;
-  font-size: 1.05rem;
-  color: var(--text);
 }
 
-.delete-button, .move-button{
-  padding: 8px 12px;
-  font-size: 0.9rem;
+/* Long text handling */
+.text {
+  min-width: 0; /* allow flexbox to shrink without overflow */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
 }
 
-@media (max-width: 640px){
-  .to-do-list{
-    margin: 24px 16px;
-    padding: 20px;
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .to-do-list {
+    margin: 16px;
+    padding: 16px;
   }
-  h1{
-    font-size: 1.75rem;
+
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
   }
-  .to-do-list > div{
-    flex-direction: column;
-    align-items: stretch;
+
+  .to-do-list > form {
+    flex-wrap: wrap;
   }
-  button{
-    width: 100%;
+
+  .to-do-list > form input[type="text"] {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .to-do-list > form .task-button[data-type="add"] {
+    flex: 1 1 100%;
+  }
+
+  li {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  /* Place text on its own row when tight */
+  li .text {
+    flex: 1 1 100%;
+    margin-bottom: 8px;
+  }
+
+  /* Keep action buttons readable and wrap to next line if needed */
+  li .task-button {
+    flex: 1 1 auto;
+  }
+
+  /* Make toast fit within viewport on mobile */
+  .undo-toast {
+    left: 16px;
+    right: 16px;
+    max-width: calc(100% - 32px);
   }
 }
