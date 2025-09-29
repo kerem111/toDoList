@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "./hooks/useTheme";
+import API, { type Task } from "./api";
 import {
   DragDropContext,
   Droppable,
@@ -8,11 +9,11 @@ import {
 } from "@hello-pangea/dnd";
 
 export function ToDoList() {
-  const [tasks, setTasks] = useState<{ id: string; text: string }[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState("");
   const [confirmIndex, setConfirmIndex] = useState<number | null>(null);
   const [lastDeleted, setLastDeleted] = useState<{
-    task: { id: string; text: string };
+    task: Task;
     index: number;
   } | null>(null);
   const [showUndo, setShowUndo] = useState(false);
@@ -20,8 +21,7 @@ export function ToDoList() {
 
   // İlk açılışta backend'den görevleri çekelim
   useEffect(() => {
-    fetch("http://localhost:5000/tasks")
-      .then((res) => res.json())
+    API.get<Task[]>("/tasks")
       .then((data) => setTasks(data))
       .catch((err) => console.error(err));
   }, []);
@@ -29,13 +29,7 @@ export function ToDoList() {
   const addTask = async () => {
     if (!newTask.trim()) return;
 
-    const res = await fetch("http://localhost:5000/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: newTask }),
-    });
-
-    const created = await res.json();
+    const created = await API.post<Task>("/tasks", { text: newTask });
     setTasks([...tasks, created]);
     setNewTask("");
   };
@@ -47,9 +41,7 @@ export function ToDoList() {
   const deleteTask = async (index: number) => {
     const taskToDelete = tasks[index];
 
-    await fetch(`http://localhost:5000/tasks/${taskToDelete.id}`, {
-      method: "DELETE",
-    });
+    await API.delete<void>(`/tasks/${taskToDelete.id}`);
 
     const updated = [...tasks];
     updated.splice(index, 1);
@@ -64,13 +56,9 @@ export function ToDoList() {
 
   const undoDelete = async () => {
     if (lastDeleted) {
-      const res = await fetch("http://localhost:5000/tasks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: lastDeleted.task.text }),
+      const restored = await API.post<Task>("/tasks", {
+        text: lastDeleted.task.text,
       });
-
-      const restored = await res.json();
       const updated = [...tasks];
       updated.splice(lastDeleted.index, 0, restored);
       setTasks(updated);

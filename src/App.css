@@ -40,3 +40,123 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Minimal login form styling */
+.auth-card {
+  max-width: 360px;
+  margin: 40px auto;
+  padding: 16px 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  text-align: left;
+}
+.auth-card h3 {
+  margin: 0 0 12px 0;
+}
+.auth-card .error {
+  color: #dc2626;
+  margin-bottom: 8px;
+}
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.auth-card input {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  border-radius: 8px;
+  outline: none;
+}
+.auth-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.btn {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.05s ease,
+    color 0.2s ease;
+}
+.btn:hover {
+  box-shadow: 0 0 0 4px var(--ring);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn.primary {
+  background: linear-gradient(180deg, var(--primary), var(--primary-600));
+  color: #ffffff;
+  border-color: #14532d;
+}
+.btn.primary:hover {
+  filter: brightness(1.05);
+}
+
+/* Secondary button with clear contrast on both themes */
+.btn.secondary {
+  background: linear-gradient(180deg, #f3f4f6, #e5e7eb);
+  color: #111827;
+  border-color: #d1d5db;
+}
+[data-theme="dark"] .btn.secondary {
+  background: linear-gradient(180deg, #1f2937, #111827);
+  color: #e5e7eb;
+  border-color: #374151;
+}
+.btn.secondary:hover {
+  box-shadow: 0 0 0 4px var(--ring);
+}
+.btn.secondary:active {
+  transform: translateY(1px);
+}
+
+/* Logout button bottom-right */
+.logout-btn {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition:
+    background 0.2s ease,
+    transform 0.05s ease;
+}
+.logout-btn:hover {
+  background: #eef2ff;
+}
+.logout-btn:active {
+  transform: translateY(1px);
+}
+
+/* Improve login/register heading readability */
+.auth-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+.auth-card .btn {
+  font-weight: 500;
+}
+
+/* Small icon style */
+.icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}

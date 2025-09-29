@@ -1,40 +1,52 @@
-// src/api.ts
-export type Task = {
+// api.ts
+type Task = {
   id: number;
-  title: string;
-  completed: boolean;
-  created_at?: string;
+  text: string;
+  done: boolean;
 };
 
-const API_ROOT = "/api/tasks";
-
-export async function fetchTasks(): Promise<Task[]> {
-  const res = await fetch(API_ROOT);
-  if (!res.ok) throw new Error("Fetch tasks failed");
-  return res.json();
-}
-
-export async function createTask(title: string): Promise<Task> {
-  const res = await fetch(API_ROOT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title }),
+async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`http://localhost:5000${url}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "",
+      ...(options.headers || {}),
+    },
   });
-  return res.json();
+
+  if (!res.ok) {
+    // Try to parse JSON error from server for better message
+    try {
+      const errBody = (await res.json()) as { error?: string };
+      const message = errBody?.error || `API error: ${res.status}`;
+      throw new Error(message);
+    } catch {
+      throw new Error(`API error: ${res.status}`);
+    }
+  }
+
+  return res.json() as Promise<T>;
 }
 
-export async function updateTask(
-  task: Partial<Task> & { id: number }
-): Promise<Task> {
-  const res = await fetch(`${API_ROOT}/${task.id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(task),
-  });
-  return res.json();
-}
+const API = {
+  get: <T>(url: string) => request<T>(url),
+  post: <T>(url: string, body: object) =>
+    request<T>(url, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  put: <T>(url: string, body: object) =>
+    request<T>(url, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
+  delete: <T>(url: string) =>
+    request<T>(url, {
+      method: "DELETE",
+    }),
+};
 
-export async function deleteTask(id: number): Promise<{ deleted: boolean }> {
-  const res = await fetch(`${API_ROOT}/${id}`, { method: "DELETE" });
-  return res.json();
-}
+export type { Task };
+export default API;
