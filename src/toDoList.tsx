@@ -1,21 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "./hooks/useTheme";
-import useLocalStorage from "use-local-storage";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  type DropResult,
+} from "@hello-pangea/dnd";
 
 export function ToDoList() {
-  const [tasks, setTasks] = useLocalStorage<string[]>("tasks", []);
+  const [tasks, setTasks] = useState<{ id: string; text: string }[]>([]);
   const [newTask, setNewTask] = useState("");
   const [confirmIndex, setConfirmIndex] = useState<number | null>(null);
   const [lastDeleted, setLastDeleted] = useState<{
-    task: string;
+    task: { id: string; text: string };
     index: number;
   } | null>(null);
   const [showUndo, setShowUndo] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
-  const addTask = () => {
+  // İlk açılışta backend'den görevleri çekelim
+  useEffect(() => {
+    fetch("http://localhost:5000/tasks")
+      .then((res) => res.json())
+      .then((data) => setTasks(data))
+      .catch((err) => console.error(err));
+  }, []);
+
+  const addTask = async () => {
     if (!newTask.trim()) return;
-    setTasks([...tasks, newTask]);
+
+    const res = await fetch("http://localhost:5000/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: newTask }),
+    });
+
+    const created = await res.json();
+    setTasks([...tasks, created]);
     setNewTask("");
   };
 
@@ -23,43 +44,50 @@ export function ToDoList() {
     setConfirmIndex(index);
   };
 
-  const deleteTask = (index: number) => {
-    const deletedTask = tasks[index];
+  const deleteTask = async (index: number) => {
+    const taskToDelete = tasks[index];
+
+    await fetch(`http://localhost:5000/tasks/${taskToDelete.id}`, {
+      method: "DELETE",
+    });
+
     const updated = [...tasks];
     updated.splice(index, 1);
     setTasks(updated);
     setConfirmIndex(null);
 
-    // save for undo
-    setLastDeleted({ task: deletedTask, index });
+    setLastDeleted({ task: taskToDelete, index });
     setShowUndo(true);
 
-    // hide undo after 5s
     setTimeout(() => setShowUndo(false), 5000);
   };
 
-  const undoDelete = () => {
+  const undoDelete = async () => {
     if (lastDeleted) {
+      const res = await fetch("http://localhost:5000/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: lastDeleted.task.text }),
+      });
+
+      const restored = await res.json();
       const updated = [...tasks];
-      updated.splice(lastDeleted.index, 0, lastDeleted.task);
+      updated.splice(lastDeleted.index, 0, restored);
       setTasks(updated);
+
       setLastDeleted(null);
       setShowUndo(false);
     }
   };
 
-  const updateTasks = (type: string, index: number) => {
-    const updated = [...tasks];
-    if (type === "up" && index > 0)
-      [updated[index - 1], updated[index]] = [
-        updated[index],
-        updated[index - 1],
-      ];
-    if (type === "down" && index < tasks.length - 1)
-      [updated[index + 1], updated[index]] = [
-        updated[index],
-        updated[index + 1],
-      ];
+  // Drag & Drop işlevi
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const updated = Array.from(tasks);
+    const [moved] = updated.splice(result.source.index, 1);
+    updated.splice(result.destination.index, 0, moved);
+
     setTasks(updated);
   };
 
@@ -88,34 +116,40 @@ export function ToDoList() {
         </button>
       </form>
 
-      <ol>
-        {tasks.map((task, index) => (
-          <li key={index}>
-            <span className="text">{task}</span>
-            <button
-              className="task-button"
-              data-type="delete"
-              onClick={() => confirmDelete(index)}
-            >
-              Delete
-            </button>
-            <button
-              className="task-button"
-              data-type="move"
-              onClick={() => updateTasks("up", index)}
-            >
-              UP
-            </button>
-            <button
-              className="task-button"
-              data-type="move"
-              onClick={() => updateTasks("down", index)}
-            >
-              DOWN
-            </button>
-          </li>
-        ))}
-      </ol>
+      {/* Drag & Drop listesi */}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="tasks">
+          {(provided) => (
+            <ol {...provided.droppableProps} ref={provided.innerRef}>
+              {tasks.map((task, index) => (
+                <Draggable
+                  key={task.id}
+                  draggableId={task.id.toString()}
+                  index={index}
+                >
+                  {(provided) => (
+                    <li
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                    >
+                      <span className="text">{task.text}</span>
+                      <button
+                        className="task-button"
+                        data-type="delete"
+                        onClick={() => confirmDelete(index)}
+                      >
+                        Delete
+                      </button>
+                    </li>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </ol>
+          )}
+        </Droppable>
+      </DragDropContext>
 
       {/* Confirm Modal */}
       {confirmIndex !== null && (
@@ -123,7 +157,7 @@ export function ToDoList() {
           <div className="modal">
             <p>
               Are you sure you want to delete{" "}
-              <strong>{tasks[confirmIndex]}</strong>?
+              <strong>{tasks[confirmIndex].text}</strong>?
             </p>
             <div className="modal-actions">
               <button
