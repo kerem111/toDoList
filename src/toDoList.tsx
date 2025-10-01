@@ -30,7 +30,8 @@ export function ToDoList() {
     if (!newTask.trim()) return;
 
     const created = await API.post<Task>("/tasks", { text: newTask });
-    setTasks([...tasks, created]);
+    // Server returns tasks ordered by newest first; keep UI consistent by prepending
+    setTasks([created, ...tasks]);
     setNewTask("");
   };
 

@@ -40,6 +40,12 @@ export default function Login({
       ) {
         message = "This user already exists with this email";
       }
+      if (
+        mode === "login" &&
+        (message.includes("401") || /invalid credentials/i.test(message))
+      ) {
+        message = "Username or password is incorrect";
+      }
       setError(message);
     }
   };
